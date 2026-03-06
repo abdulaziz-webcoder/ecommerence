@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Buyurtma qabul qilindi! - Do'kon{% endblock %}
+
+{% block content %}
+<div class="success-page">
+    <div class="success-card">
+        <div class="success-icon"><span class="material-icons-outlined"
+                style="font-size: 80px; color: var(--success);">check_circle</span></div>
+        <h1 style="margin-top: 16px;">Buyurtmangiz qabul qilindi!</h1>
+        <p class="order-number">Buyurtma raqami: <b>{{ order.order_number }}</b></p>
+
+        <div class="order-details">
+            <div class="detail-row">
+                <span>Holat:</span>
+                <span class="status-badge status-unpaid">{{ order.get_status_display }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Telefon:</span>
+                <span>{{ order.phone_number }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Manzil:</span>
+                <span>{{ order.location }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Jami summa:</span>
+                <span class="total-amount">{{ order.grand_total|floatformat:0 }} so'm</span>
+            </div>
+        </div>
+
+        <div class="success-info" style="display:flex; align-items:flex-start; gap:12px; text-align: left;">
+            <span class="material-icons-outlined" style="font-size:24px;">phonelink_ring</span>
+            <p style="margin:0;">Telegram orqali to'lov ma'lumotlari va buyurtma holati haqida xabar olasiz.</p>
+        </div>
+
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary">Bosh sahifaga qaytish</a>
+    </div>
+</div>
+{% endblock %}

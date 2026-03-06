@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Buyurtma berish - {{ site_settings.shop_name|default:"Do'kon" }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 style="display:flex;align-items:center;gap:12px;"><span class="material-icons-outlined"
+            style="font-size:32px;">list_alt</span> Buyurtma berish</h1>
+</div>
+
+{% if error %}
+<div class="alert alert-error">
+    {{ error }}
+</div>
+{% endif %}
+
+<div class="checkout-layout">
+    <form method="post" class="checkout-form">
+        {% csrf_token %}
+        <div class="form-section">
+            <h2>Aloqa ma'lumotlari</h2>
+
+            <div class="form-group">
+                <label for="phone_number">Telefon raqami *</label>
+                <input type="tel" name="phone_number" id="phone_number" value="{{ phone_number|default:'' }}"
+                    placeholder="+998 90 123 45 67" required class="form-input">
+                <div class="form-warning-panel">
+                    <span class="material-icons-outlined" style="font-size: 18px; flex-shrink: 0;">warning</span>
+                    <span>Iltimos, Telegram ulangan va faol raqam kiriting. Buyurtma tafsilotlari Telegram orqali ham
+                        yuboriladi, raqam barchaga yoki bizga ko'rinishi lozim.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="telegram_username">Telegram username</label>
+                <input type="text" name="telegram_username" id="telegram_username"
+                    value="{{ telegram_username|default:'' }}" placeholder="@username" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="location">Manzil (yetkazish uchun) *</label>
+                <textarea name="location" id="location" rows="3" placeholder="Shahar, tuman, ko'cha, uy raqami..."
+                    required class="form-input">{{ location|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="note">Izoh (ixtiyoriy)</label>
+                <textarea name="note" id="note" rows="2" placeholder="Qo'shimcha ma'lumot..."
+                    class="form-input"></textarea>
+            </div>
+        </div>
+
+        <div class="order-summary-checkout">
+            <h2>Buyurtma tafsilotlari</h2>
+            <div class="checkout-items">
+                {% for item in items %}
+                <div class="checkout-item">
+                    <span class="checkout-item-name">{{ item.product.name }} × {{ item.quantity }}</span>
+                    <span class="checkout-item-price">{{ item.subtotal|floatformat:0 }} so'm</span>
+                </div>
+                {% if item.cargo_subtotal %}
+                <div class="checkout-item checkout-cargo">
+                    <span>↳ Yetkazish</span>
+                    <span>{{ item.cargo_subtotal|floatformat:0 }} so'm</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="checkout-totals">
+                <div class="summary-row">
+                    <span>Mahsulotlar:</span>
+                    <span>{{ cart.total_price|floatformat:0 }} so'm</span>
+                </div>
+                <div class="summary-row">
+                    <span>Yetkazish:</span>
+                    <span>{{ cart.total_cargo|floatformat:0 }} so'm</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>Jami:</span>
+                    <span>{{ cart.grand_total|floatformat:0 }} so'm</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-checkout btn-lg"><span
+                    class="material-icons-outlined">check_circle</span> Buyurtma berish</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

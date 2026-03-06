@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_settings.shop_name|default:"Do'kon" }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/market.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="{% url 'products:product_list' %}" class="logo">
+                {% if site_settings and site_settings.shop_logo %}
+                <img src="{{ site_settings.shop_logo.url }}" alt="{{ site_settings.shop_name }}" class="shop-logo">
+                {% endif %}
+                {{ site_settings.shop_name|default:"Do'kon" }}
+            </a>
+            <div class="nav-center">
+                <form action="{% url 'products:product_search' %}" method="get" class="search-form">
+                    <input type="text" name="q" placeholder="Mahsulot qidirish..." value="{{ search_query|default:'' }}"
+                        class="search-input"
+                        style="background:#ffffff; border:1px solid var(--border); color:var(--text);">
+                    <button type="submit" class="search-btn" style="background:transparent; color:var(--text);">
+                        <span class="material-icons-outlined">search</span>
+                    </button>
+                </form>
+            </div>
+            <div class="nav-right" style="display:flex; gap: 24px; align-items:center;">
+
+                <a href="{% url 'orders:cart' %}" class="cart-link"
+                    style="color:var(--text); background:transparent; padding:0; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <span style="position:relative; display:inline-flex;">
+                        <span class="material-icons-outlined">shopping_cart</span>
+                        {% if cart_count %}
+                        <span class="cart-badge"
+                            style="top:-6px; right:-8px; width:16px; height:16px; font-size:0.6rem;">{{ cart_count
+                            }}</span>
+                        {% endif %}
+                    </span>
+                    <span class="cart-label" style="font-size:0.75rem; font-weight:600;">Savat</span>
+                </a>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <p>&copy; 2025 {{ site_settings.shop_name|default:"Do'kon" }}. Barcha huquqlar himoyalangan.</p>
+                </div>
+                <div class="contact-info">
+                    {% if site_settings.contact_phone %}
+                    <span class="contact-item">
+                        <span class="material-icons-outlined">phone</span> {{ site_settings.contact_phone }}
+                    </span>
+                    {% endif %}
+                    {% if site_settings.contact_telegram %}
+                    <span class="contact-item">
+                        <span class="material-icons-outlined">send</span> {{ site_settings.contact_telegram }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

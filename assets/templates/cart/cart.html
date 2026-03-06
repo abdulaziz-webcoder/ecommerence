@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Savat - Do'kon{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 style="display:flex;align-items:center;gap:12px;"><span class="material-icons-outlined"
+            style="font-size:32px;">shopping_cart</span> Savat</h1>
+</div>
+
+{% if items %}
+<div class="cart-layout">
+    <div class="cart-items">
+        {% for item in items %}
+        <div class="cart-item">
+            <div class="cart-item-image">
+                {% if item.product.main_image %}
+                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                {% else %}
+                <div class="product-placeholder small"><span class="material-icons-outlined"
+                        style="color:#cbd5e1;">inventory_2</span></div>
+                {% endif %}
+            </div>
+            <div class="cart-item-info">
+                <h3><a href="{% url 'products:product_detail' slug=item.product.slug %}">{{ item.product.name }}</a>
+                </h3>
+                <div class="cart-item-price">{{ item.product.current_price|floatformat:0 }} so'm</div>
+                {% if item.product.cargo_charge %}
+                <div class="cart-item-cargo">Yetkazish: {{ item.product.cargo_charge|floatformat:0 }} so'm</div>
+                {% endif %}
+            </div>
+            <div class="cart-item-quantity">
+                <form method="post" action="{% url 'orders:cart_update' item_id=item.pk %}">
+                    {% csrf_token %}
+                    <div class="quantity-control">
+                        <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}"
+                            class="qty-btn">−</button>
+                        <span class="qty-value">{{ item.quantity }}</span>
+                        <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}"
+                            class="qty-btn">+</button>
+                    </div>
+                </form>
+            </div>
+            <div class="cart-item-subtotal">
+                <span>{{ item.subtotal|floatformat:0 }} so'm</span>
+            </div>
+            <form method="post" action="{% url 'orders:cart_remove' item_id=item.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-remove" title="O'chirish">
+                    <span class="material-icons-outlined">delete</span>
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart-summary">
+        <h2>Buyurtma xulosasi</h2>
+        <div class="summary-row">
+            <span>Mahsulotlar:</span>
+            <span>{{ cart.total_price|floatformat:0 }} so'm</span>
+        </div>
+        <div class="summary-row">
+            <span>Yetkazish:</span>
+            <span>{{ cart.total_cargo|floatformat:0 }} so'm</span>
+        </div>
+        <div class="summary-row summary-total">
+            <span>Jami:</span>
+            <span>{{ cart.grand_total|floatformat:0 }} so'm</span>
+        </div>
+        <a href="{% url 'orders:checkout' %}" class="btn btn-checkout">Buyurtma berish</a>
+        <a href="{% url 'products:product_list' %}" class="btn btn-continue">Xarid davom etish</a>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="material-icons-outlined" style="font-size:80px;color:#ccc;">shopping_cart</span>
+    <h2>Savat bo'sh</h2>
+    <p>Mahsulotlarni savatga qo'shing</p>
+    <a href="{% url 'products:product_list' %}" class="btn btn-primary">Xaridga o'tish</a>
+</div>
+{% endif %}
+{% endblock %}

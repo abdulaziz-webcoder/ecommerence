@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Mahsulotlar - Do'kon{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if current_category %}{{ current_category }}{% elif search_query %}Qidiruv: "{{ search_query }}"{% else
+        %}Barcha mahsulotlar{% endif %}</h1>
+</div>
+
+<div class="horizontal-categories">
+    <a href="{% url 'products:product_list' %}" class="{% if not current_category %}active{% endif %}">Barcha</a>
+    {% for cat in categories %}
+    <span class="divider">|</span>
+    <a href="{% url 'products:product_list_by_category' slug=cat.slug %}"
+        class="{% if current_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+    {% endfor %}
+</div>
+
+{# Filter bar #}
+<form method="get" class="filter-bar" id="filterForm">
+    {% if current_category %}
+    <input type="hidden" name="category" value="{{ current_category }}">
+    {% endif %}
+    <div class="filter-group">
+        <label class="filter-label">Narx (so'm)</label>
+        <div class="price-inputs">
+            <input type="number" name="min_price" placeholder="Min" value="{{ filter_min }}" class="filter-input"
+                id="minPrice">
+            <span class="price-dash">—</span>
+            <input type="number" name="max_price" placeholder="Max" value="{{ filter_max }}" class="filter-input"
+                id="maxPrice">
+        </div>
+    </div>
+
+    {% if all_colors %}
+    <div class="filter-group">
+        <label class="filter-label">Rang</label>
+        <div class="color-filter-swatches">
+            <a href="?{% if filter_min %}min_price={{ filter_min }}&{% endif %}{% if filter_max %}max_price={{ filter_max }}&{% endif %}"
+                class="color-filter-swatch all-colors {% if not filter_color %}active{% endif %}" title="Barchasi">
+                <span class="material-icons-outlined" style="font-size:14px;">apps</span>
+            </a>
+            {% for color in all_colors %}
+            <a href="?color={{ color.id }}{% if filter_min %}&min_price={{ filter_min }}{% endif %}{% if filter_max %}&max_price={{ filter_max }}{% endif %}"
+                class="color-filter-swatch {% if filter_color == color.id|stringformat:'d' %}active{% endif %}"
+                style="background:{{ color.hex_code }};" title="{{ color.name }}"></a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="filter-apply-btn">Qo'llash</button>
+    <a href="{% url 'products:product_list' %}" class="filter-reset-btn">Tozalash</a>
+</form>
+
+<div>
+    <div class="products-grid">
+        {% if products %}
+        {% for product in products %}
+        <div class="product-card">
+            <a href="{% url 'products:product_detail' slug=product.slug %}">
+                <div class="product-image">
+                    {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="product-placeholder"><span class="material-icons-outlined"
+                            style="font-size: 48px; color: #c8bfae;">inventory_2</span></div>
+                    {% endif %}
+                    {% if product.has_discount %}
+                    <span class="discount-badge">Chegirma!</span>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    {% if product.category %}
+                    <span class="product-category">{{ product.category.name }}</span>
+                    {% endif %}
+                    <div class="product-price">
+                        {% if product.has_discount %}
+                        <span class="old-price">{{ product.price|floatformat:0 }} so'm</span>
+                        <span class="current-price">{{ product.current_price|floatformat:0 }} so'm</span>
+                        {% else %}
+                        <span class="current-price">{{ product.price|floatformat:0 }} so'm</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-meta">
+                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
+                                style="font-size:14px;">local_shipping</span> {{ product.shipping_days }} kun</span>
+                        {% if product.cargo_charge %}
+                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
+                                style="font-size:14px;">inventory</span> {{ product.cargo_charge|floatformat:0 }}
+                            so'm</span>
+                        {% endif %}
+                    </div>
+                    {% if product.colors.exists %}
+                    <div class="product-colors">
+                        {% for color in product.colors.all %}
+                        <span class="product-color-dot" style="background:{{ color.hex_code }};"
+                            title="{{ color.name }}"></span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-add-cart">Savatga qo'shish</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state" style="grid-column: 1/-1; text-align:center; padding:60px 0;">
+            <span class="material-icons-outlined" style="font-size:64px;color:#c8bfae;">inventory_2</span>
+            <p style="margin-top:12px; color:var(--text-muted);">Mahsulotlar topilmadi</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; Oldingi</a>
+    {% endif %}
+    <span class="page-info">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="page-link">Keyingi &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

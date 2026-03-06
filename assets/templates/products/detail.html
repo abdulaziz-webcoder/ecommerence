@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Do'kon{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'products:product_list' %}">Mahsulotlar</a>
+    {% if product.category %}
+    <span>&rsaquo;</span>
+    <a href="{% url 'products:product_list_by_category' slug=product.category.slug %}">{{ product.category.name }}</a>
+    {% endif %}
+    <span>&rsaquo;</span>
+    <span>{{ product.name }}</span>
+</div>
+
+<div class="product-detail">
+    <div class="product-gallery">
+        {% with images=product.media_files.all %}
+        {% if images %}
+        <div class="carousel-track" id="carouselTrack">
+            {% for media in images %}
+            {% if media.is_video %}
+            <div class="carousel-slide">
+                <video controls style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                    <source src="{{ media.file.url }}">
+                </video>
+            </div>
+            {% else %}
+            <div class="carousel-slide">
+                <img src="{{ media.file.url }}" alt="{{ product.name }}">
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% if images|length > 1 %}
+        <div class="carousel-dots" id="carouselDots">
+            {% for media in images %}
+            <button class="carousel-dot {% if forloop.first %}active{% endif %}"
+                onclick="goToSlide({{ forloop.counter0 }})"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-thumbs" id="carouselThumbs">
+            {% for media in images %}
+            {% if not media.is_video %}
+            <div class="carousel-thumb {% if forloop.first %}active{% endif %}"
+                onclick="goToSlide({{ forloop.counter0 }})">
+                <img src="{{ media.file.url }}" alt="{{ product.name }}">
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="gallery-placeholder">
+            <span class="material-icons-outlined" style="font-size:120px; color:#c8bfae;">inventory_2</span>
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="product-detail-info">
+        <h1>{{ product.name }}</h1>
+
+        {% if product.category %}
+        <span class="product-category-badge">{{ product.category.name }}</span>
+        {% endif %}
+
+        <div class="price-block">
+            {% if product.has_discount %}
+            <span class="detail-old-price">{{ product.price|floatformat:0 }} so'm</span>
+            <span class="detail-current-price">{{ product.current_price|floatformat:0 }} so'm</span>
+            {% else %}
+            <span class="detail-current-price">{{ product.price|floatformat:0 }} so'm</span>
+            {% endif %}
+        </div>
+
+        {% if product.colors.exists %}
+        <div class="color-options">
+            <p class="color-label">Ranglar:</p>
+            <div class="color-swatches">
+                {% for color in product.colors.all %}
+                <span class="color-swatch" style="background:{{ color.hex_code }};" title="{{ color.name }}"></span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="detail-meta">
+            <div class="meta-item">
+                <span class="material-icons-outlined">local_shipping</span>
+                <span>Yetkazish: <b>{{ product.shipping_days }} kun</b></span>
+            </div>
+            {% if product.cargo_charge %}
+            <div class="meta-item">
+                <span class="material-icons-outlined">inventory</span>
+                <span>Yetkazish narxi: <b>{{ product.cargo_charge|floatformat:0 }} so'm</b></span>
+            </div>
+            {% endif %}
+            <div class="meta-item">
+                <span class="material-icons-outlined">visibility</span>
+                <span>{{ product.view_count }} marta ko'rilgan</span>
+            </div>
+            <div class="meta-item">
+                <span class="material-icons-outlined">shopping_bag</span>
+                <span>{{ product.order_count }} marta buyurtma qilingan</span>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-add-cart btn-lg">
+                <span class="material-icons-outlined">shopping_cart</span> Savatga qo'shish
+            </button>
+        </form>
+
+        {% if product.description %}
+        <div class="product-description">
+            <h2>Tavsif</h2>
+            <div class="description-content">{{ product.description|safe }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    let current = 0;
+    const track = document.getElementById('carouselTrack');
+    const dots = document.querySelectorAll('.carousel-dot');
+    const thumbs = document.querySelectorAll('.carousel-thumb');
+
+    function goToSlide(index) {
+        if (!track) return;
+        current = index;
+        const slides = track.querySelectorAll('.carousel-slide');
+        if (slides.length === 0) return;
+        track.scrollTo({ left: slides[index].offsetLeft, behavior: 'smooth' });
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+    }
+
+    // Auto-advance carousel every 4 seconds
+    {% if product.media_files.count > 1 %}
+    setInterval(() => {
+        const slides = track ? track.querySelectorAll('.carousel-slide') : [];
+        if (slides.length < 2) return;
+        current = (current + 1) % slides.length;
+        goToSlide(current);
+    }, 4000);
+    {% endif %}
+</script>
+{% endblock %}
+{% endblock %}

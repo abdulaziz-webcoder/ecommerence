@@ -25,8 +25,16 @@ else:
 CACHE_MIDDLEWARE_SECONDS = int(os.getenv("CACHE_TIMEOUT", 300))
 
 # Celery Configuration
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER", "redis://redis:6379/0")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
+_broker = os.getenv("CELERY_BROKER", "").strip()
+
+if _broker:
+    CELERY_BROKER_URL = _broker
+    CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", _broker)
+else:
+    # Fallback for PythonAnywhere free tier: run Celery tasks synchronously in the main web thread
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_STORE_EAGER_RESULT = True
+
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"

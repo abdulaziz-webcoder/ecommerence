@@ -1,5 +1,6 @@
 import os  # noqa
 from pathlib import Path  # type:ignore
+import ssl
 
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv, find_dotenv
@@ -30,7 +31,7 @@ def env_list(name: str) -> list[str]:
 
 SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key")
 
-DEBUG: bool = env_bool("DEBUG", False)
+DEBUG: bool = env_bool("DEBUG", True)
 
 ALLOWED_HOSTS: list[str] = env_list("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS: list[str] = env_list("CSRF_TRUSTED_ORIGINS")
@@ -76,6 +77,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_CACHE_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "ssl_cert_reqs": ssl.CERT_REQUIRED,
+            },
+        },
+    }
+}
 if os.getenv("POSTGRES_HOST") and not env_bool("USE_SQLITE"):
     DATABASES = {
         "default": {
@@ -148,3 +161,15 @@ CORS_ALLOW_ALL_ORIGINS = True
 LOCALE_MIDDLEWARE_EXCLUDED_PATHS = ["/media/", "/static/"]
 
 AUTH_USER_MODEL = "users.User"
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
+
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+CELERY_BROKER_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_REQUIRED,
+}
+
+CELERY_REDIS_BACKEND_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_REQUIRED,
+}

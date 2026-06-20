@@ -3,11 +3,10 @@
 {% block title %}Buyurtma qabul qilindi! - Do'kon{% endblock %}
 
 {% block content %}
-<div class="success-page">
+<div class="success-page reveal">
     <div class="success-card">
-        <div class="success-icon"><span class="material-icons-outlined"
-                style="font-size: 80px; color: var(--success);">check_circle</span></div>
-        <h1 style="margin-top: 16px;">Buyurtmangiz qabul qilindi!</h1>
+        <div class="success-icon"><span class="material-icons-outlined">check_circle</span></div>
+        <h1>Buyurtmangiz qabul qilindi!</h1>
         <p class="order-number">Buyurtma raqami: <b>{{ order.order_number }}</b></p>
 
         <div class="order-details">
@@ -29,9 +28,9 @@
             </div>
         </div>
 
-        <div class="success-info" style="display:flex; align-items:flex-start; gap:12px; text-align: left;">
-            <span class="material-icons-outlined" style="font-size:24px;">phonelink_ring</span>
-            <p style="margin:0;">Telegram orqali to'lov ma'lumotlari va buyurtma holati haqida xabar olasiz.</p>
+        <div class="success-info">
+            <span class="material-icons-outlined">phonelink_ring</span>
+            <p>Telegram orqali to'lov ma'lumotlari va buyurtma holati haqida xabar olasiz.</p>
         </div>
 
         <a href="{% url 'products:product_list' %}" class="btn btn-primary">Bosh sahifaga qaytish</a>

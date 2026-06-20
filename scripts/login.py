@@ -3,9 +3,6 @@ import sys
 import asyncio
 from telethon import TelegramClient
 
-# Add project root to python path to import django settings loosely
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
-
 # Set session path in project root
 SESSION_FILE = "marketplace_bot.session"
 
@@ -59,7 +56,6 @@ async def main():
 
     print("\nSession file looks good! Your Django app can now use it to send messages.")
     
-    # Optional: Send a test message to Saved Messages
     try:
         await client.send_message("me", "**Do'kon Web Marketplace:** Telethon Userbot successfully linked! 🚀", parse_mode='md')
         print("A test message was sent to your 'Saved Messages' (Saqlangan Xabarlar) on Telegram.")

@@ -3,9 +3,8 @@
 {% block title %}Buyurtma berish - {{ site_settings.shop_name|default:"Do'kon" }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 style="display:flex;align-items:center;gap:12px;"><span class="material-icons-outlined"
-            style="font-size:32px;">list_alt</span> Buyurtma berish</h1>
+<div class="page-header reveal">
+    <h1><span class="material-icons-outlined">list_alt</span> Buyurtma berish</h1>
 </div>
 
 {% if error %}
@@ -14,7 +13,7 @@
 </div>
 {% endif %}
 
-<div class="checkout-layout">
+<div class="checkout-layout reveal">
     <form method="post" class="checkout-form">
         {% csrf_token %}
         <div class="form-section">
@@ -25,7 +24,7 @@
                 <input type="tel" name="phone_number" id="phone_number" value="{{ phone_number|default:'' }}"
                     placeholder="+998 90 123 45 67" required class="form-input">
                 <div class="form-warning-panel">
-                    <span class="material-icons-outlined" style="font-size: 18px; flex-shrink: 0;">warning</span>
+                    <span class="material-icons-outlined">warning</span>
                     <span>Iltimos, Telegram ulangan va faol raqam kiriting. Buyurtma tafsilotlari Telegram orqali ham
                         yuboriladi, raqam barchaga yoki bizga ko'rinishi lozim.</span>
                 </div>

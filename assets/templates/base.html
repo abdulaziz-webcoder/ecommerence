@@ -4,13 +4,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}{{ site_settings.shop_name|default:"Do'kon" }}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/market.css' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
 
@@ -25,30 +25,47 @@
             </a>
             <div class="nav-center">
                 <form action="{% url 'products:product_search' %}" method="get" class="search-form">
-                    <input type="text" name="q" placeholder="Mahsulot qidirish..." value="{{ search_query|default:'' }}"
-                        class="search-input"
-                        style="background:#ffffff; border:1px solid var(--border); color:var(--text);">
-                    <button type="submit" class="search-btn" style="background:transparent; color:var(--text);">
+                    <input type="text" name="q" placeholder="Qidirish..." value="{{ search_query|default:'' }}"
+                        class="search-input">
+                    <button type="submit" class="search-btn">
                         <span class="material-icons-outlined">search</span>
                     </button>
                 </form>
             </div>
-            <div class="nav-right" style="display:flex; gap: 24px; align-items:center;">
-
-                <a href="{% url 'orders:cart' %}" class="cart-link"
-                    style="color:var(--text); background:transparent; padding:0; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div class="nav-right">
+                <a href="{% url 'orders:cart' %}" class="cart-link">
                     <span style="position:relative; display:inline-flex;">
-                        <span class="material-icons-outlined">shopping_cart</span>
+                        <span class="material-icons-outlined">shopping_bag</span>
                         {% if cart_count %}
-                        <span class="cart-badge"
-                            style="top:-6px; right:-8px; width:16px; height:16px; font-size:0.6rem;">{{ cart_count
-                            }}</span>
+                        <span class="cart-badge">{{ cart_count }}</span>
                         {% endif %}
                     </span>
-                    <span class="cart-label" style="font-size:0.75rem; font-weight:600;">Savat</span>
+                    <span class="cart-label">Savat</span>
                 </a>
-
             </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-items">
+            <a href="{% url 'products:product_list' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+                <span class="material-icons-outlined">home</span>
+                <span>Asosiy</span>
+            </a>
+            
+            <a href="{% url 'products:product_list' %}#search" class="mobile-nav-item" onclick="document.querySelector('.search-input').focus(); window.scrollTo(0, 0);">
+                <span class="material-icons-outlined">search</span>
+                <span>Qidirish</span>
+            </a>
+
+            <a href="{% url 'orders:cart' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'cart' %}active{% endif %}">
+                <span class="material-icons-outlined">shopping_bag</span>
+                <span>Savat</span>
+                {% if cart_count %}
+                <span class="mobile-nav-badge">{{ cart_count }}</span>
+                {% endif %}
+            </a>
         </div>
     </nav>
 
@@ -80,7 +97,7 @@
         </div>
     </footer>
 
-
+    <script src="{% static 'js/shop-ui.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 

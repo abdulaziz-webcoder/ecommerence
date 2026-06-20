@@ -3,7 +3,7 @@
 {% block title %}{{ product.name }} - Do'kon{% endblock %}
 
 {% block content %}
-<div class="breadcrumb">
+<div class="breadcrumb reveal">
     <a href="{% url 'products:product_list' %}">Mahsulotlar</a>
     {% if product.category %}
     <span>&rsaquo;</span>
@@ -14,7 +14,7 @@
 </div>
 
 <div class="product-detail">
-    <div class="product-gallery">
+    <div class="product-gallery reveal">
         {% with images=product.media_files.all %}
         {% if images %}
         <div class="carousel-track" id="carouselTrack">
@@ -52,13 +52,13 @@
         {% endif %}
         {% else %}
         <div class="gallery-placeholder">
-            <span class="material-icons-outlined" style="font-size:120px; color:#c8bfae;">inventory_2</span>
+            <span class="material-icons-outlined" style="font-size:120px; opacity:0.2;">inventory_2</span>
         </div>
         {% endif %}
         {% endwith %}
     </div>
 
-    <div class="product-detail-info">
+    <div class="product-detail-info reveal">
         <h1>{{ product.name }}</h1>
 
         {% if product.category %}
@@ -109,7 +109,7 @@
         <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-add-cart btn-lg">
-                <span class="material-icons-outlined">shopping_cart</span> Savatga qo'shish
+                <span class="material-icons-outlined">shopping_bag</span> Savatga qo'shish
             </button>
         </form>
 

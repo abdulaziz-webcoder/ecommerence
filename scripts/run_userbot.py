@@ -2,6 +2,7 @@ import os
 import sys
 import asyncio
 import logging
+import sqlite3
 from pathlib import Path
 
 # Setup Django environment
@@ -22,6 +23,21 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+
+def is_telethon_session(session_path: str) -> bool:
+    """Return True if the file looks like a Telethon SQLite session."""
+    try:
+        conn = sqlite3.connect(session_path)
+        columns = {
+            row[1]
+            for row in conn.execute("PRAGMA table_info(version)").fetchall()
+        }
+        conn.close()
+    except sqlite3.Error:
+        return False
+    return "version" in columns
+
 
 async def process_payment_screenshot(event, order, admin_phone):
     """Save the photo as a PaymentScreenshot and notify the admin."""
@@ -72,7 +88,14 @@ async def main():
     session_path = str(Path(settings.BASE_DIR) / "marketplace_bot.session")
     
     if not os.path.exists(session_path):
-        logger.error("Session file not found! Please run 'python scripts/login_telethon.py' first.")
+        logger.error("Session file not found! Please run 'python scripts/login.py' first.")
+        return
+
+    if not is_telethon_session(session_path):
+        logger.error(
+            "Session file is not a Telethon session (likely created by Pyrogram). "
+            "Delete marketplace_bot.session and run 'python scripts/login.py' to create a new one."
+        )
         return
 
     client = TelegramClient(session_path, int(bot_settings.api_id), bot_settings.api_hash)
@@ -124,7 +147,7 @@ async def main():
     await client.connect()
     
     if not await client.is_user_authorized():
-        logger.error("Session is invalid or logged out! Please run login_telethon.py again.")
+        logger.error("Session is invalid or logged out! Please run 'python scripts/login.py' again.")
         return
         
     async def poll_redis_outbound():

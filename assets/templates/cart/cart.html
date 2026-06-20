@@ -3,9 +3,8 @@
 {% block title %}Savat - Do'kon{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 style="display:flex;align-items:center;gap:12px;"><span class="material-icons-outlined"
-            style="font-size:32px;">shopping_cart</span> Savat</h1>
+<div class="page-header reveal">
+    <h1><span class="material-icons-outlined">shopping_bag</span> Savat</h1>
 </div>
 
 {% if items %}
@@ -17,8 +16,7 @@
                 {% if item.product.main_image %}
                 <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
                 {% else %}
-                <div class="product-placeholder small"><span class="material-icons-outlined"
-                        style="color:#cbd5e1;">inventory_2</span></div>
+                <div class="product-placeholder small"><span class="material-icons-outlined">inventory_2</span></div>
                 {% endif %}
             </div>
             <div class="cart-item-info">
@@ -54,7 +52,7 @@
         {% endfor %}
     </div>
 
-    <div class="cart-summary">
+    <div class="cart-summary reveal">
         <h2>Buyurtma xulosasi</h2>
         <div class="summary-row">
             <span>Mahsulotlar:</span>
@@ -73,8 +71,8 @@
     </div>
 </div>
 {% else %}
-<div class="empty-state">
-    <span class="material-icons-outlined" style="font-size:80px;color:#ccc;">shopping_cart</span>
+<div class="empty-state reveal">
+    <span class="material-icons-outlined" style="font-size:80px; opacity:0.2;">shopping_bag</span>
     <h2>Savat bo'sh</h2>
     <p>Mahsulotlarni savatga qo'shing</p>
     <a href="{% url 'products:product_list' %}" class="btn btn-primary">Xaridga o'tish</a>

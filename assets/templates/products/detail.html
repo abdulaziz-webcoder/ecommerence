@@ -74,40 +74,55 @@
             {% endif %}
         </div>
 
-        {% if product.colors.exists %}
-        <div class="color-options">
-            <p class="color-label">Ranglar:</p>
-            <div class="color-swatches">
-                {% for color in product.colors.all %}
-                <span class="color-swatch" style="background:{{ color.hex_code }};" title="{{ color.name }}"></span>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
+        <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}" id="addToCartForm">
+            {% csrf_token %}
+            <input type="hidden" name="color_id" id="selectedColor" value="">
+            <input type="hidden" name="size_id" id="selectedSize" value="">
 
-        <div class="detail-meta">
-            <div class="meta-item">
-                <span class="material-icons-outlined">local_shipping</span>
-                <span>Yetkazish: <b>{{ product.shipping_days }} kun</b></span>
-            </div>
-            {% if product.cargo_charge %}
-            <div class="meta-item">
-                <span class="material-icons-outlined">inventory</span>
-                <span>Yetkazish narxi: <b>{{ product.cargo_charge|floatformat:0 }} so'm</b></span>
+            {% if product.colors.exists %}
+            <div class="color-options">
+                <p class="color-label">Ranglar: <span id="colorNameDisplay"></span></p>
+                <div class="color-swatches">
+                    {% for color in product.colors.all %}
+                    <span class="color-swatch" style="background:{{ color.hex_code }};" title="{{ color.name }}" 
+                          onclick="selectColor('{{ color.id }}', '{{ color.name }}', this)"></span>
+                    {% endfor %}
+                </div>
             </div>
             {% endif %}
-            <div class="meta-item">
-                <span class="material-icons-outlined">visibility</span>
-                <span>{{ product.view_count }} marta ko'rilgan</span>
-            </div>
-            <div class="meta-item">
-                <span class="material-icons-outlined">shopping_bag</span>
-                <span>{{ product.order_count }} marta buyurtma qilingan</span>
-            </div>
-        </div>
 
-        <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
-            {% csrf_token %}
+            {% if product.sizes.exists %}
+            <div class="size-options">
+                <p class="size-label">O'lchamlar: <span id="sizeNameDisplay"></span></p>
+                <div class="size-swatches">
+                    {% for size in product.sizes.all %}
+                    <button type="button" class="size-pill" onclick="selectSize('{{ size.id }}', '{{ size.name }}', this)">{{ size.name }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="detail-meta">
+                <div class="meta-item">
+                    <span class="material-icons-outlined">local_shipping</span>
+                    <span>Yetkazish: <b>{{ product.shipping_days }} kun</b></span>
+                </div>
+                {% if product.cargo_charge %}
+                <div class="meta-item">
+                    <span class="material-icons-outlined">inventory</span>
+                    <span>Yetkazish narxi: <b>{{ product.cargo_charge|floatformat:0 }} so'm</b></span>
+                </div>
+                {% endif %}
+                <div class="meta-item">
+                    <span class="material-icons-outlined">visibility</span>
+                    <span>{{ product.view_count }} marta ko'rilgan</span>
+                </div>
+                <div class="meta-item">
+                    <span class="material-icons-outlined">shopping_bag</span>
+                    <span>{{ product.order_count }} marta buyurtma qilingan</span>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-add-cart btn-lg">
                 <span class="material-icons-outlined">shopping_bag</span> Savatga qo'shish
             </button>

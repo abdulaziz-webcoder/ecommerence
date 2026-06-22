@@ -20,8 +20,14 @@
                 {% endif %}
             </div>
             <div class="cart-item-info">
-                <h3><a href="{% url 'products:product_detail' slug=item.product.slug %}">{{ item.product.name }}</a>
-                </h3>
+                <h3><a href="{% url 'products:product_detail' slug=item.product.slug %}">{{ item.product.name }}</a></h3>
+                {% if item.color or item.size %}
+                <div class="cart-item-variant">
+                    {% if item.color %}Rang: {{ item.color.name }}{% endif %}
+                    {% if item.color and item.size %} | {% endif %}
+                    {% if item.size %}O'lcham: {{ item.size.name }}{% endif %}
+                </div>
+                {% endif %}
                 <div class="cart-item-price">{{ item.product.current_price|floatformat:0 }} so'm</div>
                 {% if item.product.cargo_charge %}
                 <div class="cart-item-cargo">Yetkazish: {{ item.product.cargo_charge|floatformat:0 }} so'm</div>

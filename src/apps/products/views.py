@@ -1,7 +1,7 @@
 from django.db.models import Q, Min, Max
 from django.views.generic import DetailView, ListView
 
-from apps.products.models import Category, Color, Product
+from apps.products.models import Category, Color, Product, Size, Collection
 
 
 class ProductListView(ListView):
@@ -40,6 +40,14 @@ class ProductListView(ListView):
             except ValueError:
                 pass
 
+        # Size filter
+        size_id = self.request.GET.get("size")
+        if size_id:
+            try:
+                qs = qs.filter(sizes__id=int(size_id))
+            except ValueError:
+                pass
+
         return qs
 
     def get_context_data(self, **kwargs):
@@ -56,6 +64,9 @@ class ProductListView(ListView):
         ctx["filter_min"] = self.request.GET.get("min_price", "")
         ctx["filter_max"] = self.request.GET.get("max_price", "")
         ctx["filter_color"] = self.request.GET.get("color", "")
+        ctx["filter_size"] = self.request.GET.get("size", "")
+        ctx["all_sizes"] = Size.objects.all()
+        ctx["search_query"] = self.request.GET.get("q", "")
         return ctx
 
 
@@ -95,4 +106,25 @@ class ProductSearchView(ListView):
         ctx["categories"] = Category.objects.filter(is_active=True)
         ctx["search_query"] = self.request.GET.get("q", "")
         ctx["all_colors"] = Color.objects.all()
+        ctx["all_sizes"] = Size.objects.all()
         return ctx
+
+
+class CollectionListView(ListView):
+    model = Collection
+    template_name = "products/collection_list.html"
+    context_object_name = "collections"
+    paginate_by = 12
+
+    def get_queryset(self):
+        return Collection.objects.filter(is_active=True).prefetch_related("products")
+
+
+class CollectionDetailView(DetailView):
+    model = Collection
+    template_name = "products/collection_detail.html"
+    context_object_name = "collection"
+    slug_url_kwarg = "slug"
+
+    def get_queryset(self):
+        return Collection.objects.filter(is_active=True).prefetch_related("products")

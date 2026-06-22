@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ collection.name }} - Do'kon{% endblock %}
+
+{% block content %}
+<div class="breadcrumb reveal">
+    <a href="{% url 'products:product_list' %}">Mahsulotlar</a>
+    <span>&rsaquo;</span>
+    <a href="{% url 'products:collection_list' %}">To'plamlar</a>
+    <span>&rsaquo;</span>
+    <span>{{ collection.name }}</span>
+</div>
+
+<div class="collection-header reveal">
+    {% if collection.image %}
+    <div class="collection-header-image" style="background-image: url('{{ collection.image.url }}');"></div>
+    {% endif %}
+    <div class="collection-header-content">
+        <h1>{{ collection.name }}</h1>
+        {% if collection.description %}
+        <p class="collection-description">{{ collection.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="page-header reveal" style="margin-top: 40px;">
+    <h2>To'plamdagi mahsulotlar ({{ products.count }})</h2>
+</div>
+
+<div>
+    <div class="products-grid">
+        {% if products %}
+        {% for product in products %}
+        <div class="product-card">
+            <div style="position: relative;">
+                <a href="{% url 'products:product_detail' slug=product.slug %}">
+                    <div class="product-image">
+                        {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                        <div class="product-placeholder"><span class="material-icons-outlined">inventory_2</span></div>
+                        {% endif %}
+                        {% if product.has_discount %}
+                        <span class="discount-badge">Chegirma!</span>
+                        {% endif %}
+                    </div>
+                </a>
+                <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="quick-add-btn" aria-label="Savatga qo'shish">
+                        <span class="material-icons-outlined" style="font-size: 20px;">add</span>
+                    </button>
+                </form>
+            </div>
+            <a href="{% url 'products:product_detail' slug=product.slug %}">
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    {% if product.category %}
+                    <span class="product-category">{{ product.category.name }}</span>
+                    {% endif %}
+                    <div class="product-price">
+                        {% if product.has_discount %}
+                        <span class="old-price">{{ product.price|floatformat:0 }} so'm</span>
+                        <span class="current-price">{{ product.current_price|floatformat:0 }} so'm</span>
+                        {% else %}
+                        <span class="current-price">{{ product.price|floatformat:0 }} so'm</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-meta">
+                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
+                                style="font-size:16px;">local_shipping</span> {{ product.shipping_days }} kun</span>
+                        {% if product.cargo_charge %}
+                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
+                                style="font-size:16px;">inventory</span> {{ product.cargo_charge|floatformat:0 }}
+                            so'm</span>
+                        {% endif %}
+                    </div>
+                    {% if product.colors.exists %}
+                    <div class="product-colors">
+                        {% for color in product.colors.all %}
+                        <span class="product-color-dot" style="background:{{ color.hex_code }};"
+                            title="{{ color.name }}"></span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state reveal">
+            <span class="material-icons-outlined" style="font-size:80px; opacity: 0.5;">inventory_2</span>
+            <p>Ushbu to'plamda hozircha mahsulotlar yo'q</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

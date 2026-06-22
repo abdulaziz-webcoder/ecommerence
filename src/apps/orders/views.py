@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.orders.models import Cart, CartItem, Order, OrderItem
-from apps.products.models import Product
+from apps.products.models import Product, Color, Size
 
 
 def _get_or_create_cart(request):
@@ -21,9 +21,28 @@ def cart_add(request, product_id):
     product = get_object_or_404(Product, pk=product_id, is_active=True)
     cart = _get_or_create_cart(request)
 
+    color_id = request.POST.get("color_id")
+    size_id = request.POST.get("size_id")
+    
+    color = None
+    if color_id:
+        try:
+            color = Color.objects.get(pk=color_id)
+        except Color.DoesNotExist:
+            pass
+
+    size = None
+    if size_id:
+        try:
+            size = Size.objects.get(pk=size_id)
+        except Size.DoesNotExist:
+            pass
+
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=product,
+        color=color,
+        size=size,
         defaults={"quantity": 1},
     )
     if not created:
@@ -123,6 +142,8 @@ def checkout_view(request):
                     order=order,
                     product=item.product,
                     product_name=item.product.name,
+                    color_name=item.color.name if item.color else None,
+                    size_name=item.size.name if item.size else None,
                     quantity=item.quantity,
                     unit_price=price,
                     cargo_charge=cargo,

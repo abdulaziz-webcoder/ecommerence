@@ -15,6 +15,16 @@
 </head>
 
 <body>
+    <!-- Promo Banner -->
+    <div class="promo-banner" id="promoBanner">
+        <div class="promo-content">
+            <span class="promo-text">🔥 Katta chegirmalar! <strong>50% gacha</strong> arzonlashtirilgan narxlar!</span>
+        </div>
+        <button class="promo-close" onclick="dismissPromoBanner()" aria-label="Yopish">
+            <span class="material-icons-outlined">close</span>
+        </button>
+    </div>
+
     <nav class="navbar">
         <div class="container nav-container">
             <a href="{% url 'products:product_list' %}" class="logo">
@@ -54,6 +64,11 @@
                 <span>Asosiy</span>
             </a>
             
+            <a href="{% url 'products:collection_list' %}" class="mobile-nav-item {% if 'collection' in request.resolver_match.url_name %}active{% endif %}">
+                <span class="material-icons-outlined">category</span>
+                <span>To'plamlar</span>
+            </a>
+
             <a href="{% url 'products:product_list' %}#search" class="mobile-nav-item" onclick="document.querySelector('.search-input').focus(); window.scrollTo(0, 0);">
                 <span class="material-icons-outlined">search</span>
                 <span>Qidirish</span>

@@ -6,7 +6,7 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.contrib.filters.admin import RangeDateFilter
 from unfold.decorators import display
 
-from apps.products.models import Category, Color, Discount, Product, ProductMedia
+from apps.products.models import Category, Color, Discount, Product, ProductMedia, Size, ProductVariant, Collection
 
 
 class ColorPickerWidget(forms.TextInput):
@@ -57,9 +57,22 @@ class DiscountInline(TabularInline):
     fields = ("discount_percent", "start_date", "end_date", "is_active")
 
 
+@admin.register(Size)
+class SizeAdmin(ModelAdmin):
+    list_display = ("name", "size_type", "ordering")
+    list_editable = ("size_type", "ordering")
+    list_filter = ("size_type",)
+
+
+class ProductVariantInline(TabularInline):
+    model = ProductVariant
+    extra = 1
+    fields = ("color", "size", "stock", "price_override")
+
+
 @admin.register(Category)
 class CategoryAdmin(ModelAdmin):
-    list_display = ("name", "slug", "is_active", "ordering")
+    list_display = ("name", "slug", "size_type", "is_active", "ordering")
     list_editable = ("is_active", "ordering")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
@@ -90,11 +103,11 @@ class ProductAdmin(ModelAdmin):
     list_filter_submit = True
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
-    inlines = [ProductMediaInline, DiscountInline]
+    inlines = [ProductMediaInline, DiscountInline, ProductVariantInline]
     fieldsets = (
         (_("Asosiy"), {"fields": ("name", "slug", "category", "is_active")}),
         (_("Narxlar"), {"fields": ("price", "discount_price", "cargo_charge")}),
-        (_("Ranglar"), {"fields": ("colors",)}),
+        (_("Ranglar va O'lchamlar"), {"fields": ("colors", "sizes")}),
         (_("Tavsif"), {"fields": ("description",)}),
         (_("Yetkazish"), {"fields": ("shipping_days",)}),
     )
@@ -131,3 +144,14 @@ class DiscountAdmin(ModelAdmin):
     list_editable = ("is_active",)
     list_filter = ("is_active", ("start_date", RangeDateFilter))
     list_filter_submit = True
+
+
+@admin.register(Collection)
+class CollectionAdmin(ModelAdmin):
+    list_display = ("name", "slug", "is_active", "ordering")
+    list_editable = ("is_active", "ordering")
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+    list_filter = ("is_active",)
+    filter_horizontal = ("products",)
+

@@ -10,6 +10,12 @@ class Category(AbstractBaseModel):
     name = models.CharField(max_length=255, verbose_name=_("Nomi"))
     slug = models.SlugField(max_length=255, unique=True, blank=True, verbose_name=_("Slug"))
     icon = models.CharField(max_length=50, blank=True, default="category", verbose_name=_("Ikonka"))
+    size_type = models.CharField(
+        max_length=20,
+        choices=[('NONE', 'Yo\'q'), ('CLOTHING', 'Kiyim'), ('SHOES', 'Poyabzal')],
+        default='NONE',
+        verbose_name=_("O'lcham turi")
+    )
     is_active = models.BooleanField(default=True, verbose_name=_("Faol"))
     ordering = models.IntegerField(default=0, verbose_name=_("Tartib"))
 
@@ -48,6 +54,24 @@ class Color(AbstractBaseModel):
         return self.name
 
 
+class Size(AbstractBaseModel):
+    name = models.CharField(max_length=10, verbose_name=_("O'lcham nomi"))
+    size_type = models.CharField(
+        max_length=20,
+        choices=[('NONE', 'Yo\'q'), ('CLOTHING', 'Kiyim'), ('SHOES', 'Poyabzal')],
+        default='NONE',
+        verbose_name=_("O'lcham turi")
+    )
+    ordering = models.IntegerField(default=0, verbose_name=_("Tartib"))
+
+    class Meta:
+        verbose_name = _("O'lcham")
+        verbose_name_plural = _("O'lchamlar")
+        db_table = "sizes"
+        ordering = ["ordering", "name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_size_type_display()})"
 
 class Product(AbstractBaseModel):
     name = models.CharField(max_length=500, verbose_name=_("Nomi"))
@@ -71,6 +95,9 @@ class Product(AbstractBaseModel):
     )
     colors = models.ManyToManyField(
         Color, blank=True, related_name="products", verbose_name=_("Ranglar")
+    )
+    sizes = models.ManyToManyField(
+        Size, blank=True, related_name="products", verbose_name=_("O'lchamlar")
     )
     view_count = models.PositiveIntegerField(default=0, verbose_name=_("Ko'rishlar soni"), editable=False)
     order_count = models.PositiveIntegerField(default=0, verbose_name=_("Buyurtmalar soni"), editable=False)
@@ -170,3 +197,51 @@ class Discount(AbstractBaseModel):
 
     def __str__(self):
         return f"{self.product.name} - {self.discount_percent}%"
+
+
+class ProductVariant(AbstractBaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants", verbose_name=_("Mahsulot"))
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Rang"))
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("O'lcham"))
+    stock = models.PositiveIntegerField(default=0, verbose_name=_("Zaxira"))
+    price_override = models.DecimalField(
+        max_digits=12, decimal_places=0, null=True, blank=True, verbose_name=_("Boshqa narx")
+    )
+
+    class Meta:
+        verbose_name = _("Mahsulot varianti")
+        verbose_name_plural = _("Mahsulot variantlari")
+        db_table = "product_variants"
+        unique_together = ("product", "color", "size")
+
+    def __str__(self):
+        return f"{self.product.name} - {self.color} - {self.size}"
+
+
+class Collection(AbstractBaseModel):
+    name = models.CharField(max_length=255, verbose_name=_("Nomi"))
+    slug = models.SlugField(max_length=255, unique=True, blank=True, verbose_name=_("Slug"))
+    description = models.TextField(blank=True, verbose_name=_("Tavsif"))
+    image = models.ImageField(upload_to="collections/", blank=True, verbose_name=_("Rasm"))
+    products = models.ManyToManyField(Product, related_name="collections", blank=True, verbose_name=_("Mahsulotlar"))
+    is_active = models.BooleanField(default=True, verbose_name=_("Faol"))
+    ordering = models.IntegerField(default=0, verbose_name=_("Tartib"))
+
+    class Meta:
+        verbose_name = _("To'plam")
+        verbose_name_plural = _("To'plamlar")
+        ordering = ["ordering", "name"]
+        db_table = "collections"
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+            original_slug = self.slug
+            counter = 1
+            while Collection.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)

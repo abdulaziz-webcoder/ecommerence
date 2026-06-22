@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}To'plamlar - Do'kon{% endblock %}
+
+{% block content %}
+<div class="page-header reveal">
+    <h1><span class="material-icons-outlined">category</span> To'plamlar</h1>
+</div>
+
+<div>
+    <div class="collections-grid">
+        {% if collections %}
+        {% for collection in collections %}
+        <div class="collection-card reveal">
+            <a href="{% url 'products:collection_detail' slug=collection.slug %}">
+                <div class="collection-image">
+                    {% if collection.image %}
+                    <img src="{{ collection.image.url }}" alt="{{ collection.name }}" loading="lazy">
+                    {% else %}
+                    <div class="product-placeholder"><span class="material-icons-outlined">style</span></div>
+                    {% endif %}
+                    <div class="collection-overlay">
+                        <h2 class="collection-name">{{ collection.name }}</h2>
+                        <span class="collection-count">{{ collection.products.count }} ta mahsulot</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state reveal">
+            <span class="material-icons-outlined" style="font-size:80px; opacity: 0.5;">category</span>
+            <p>Hozircha to'plamlar yo'q</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

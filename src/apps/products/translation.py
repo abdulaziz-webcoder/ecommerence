@@ -1,6 +1,6 @@
 from modeltranslation.translator import translator, TranslationOptions
 
-from apps.products.models import Category, Product
+from apps.products.models import Category, Product, Collection
 
 
 class CategoryTranslationOptions(TranslationOptions):
@@ -13,3 +13,8 @@ class ProductTranslationOptions(TranslationOptions):
 
 translator.register(Category, CategoryTranslationOptions)
 translator.register(Product, ProductTranslationOptions)
+
+class CollectionTranslationOptions(TranslationOptions):
+    fields = ("name", "description")
+
+translator.register(Collection, CollectionTranslationOptions)

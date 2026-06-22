@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.products.models import Product
+from apps.products.models import Product, Color, Size
 from apps.shared.models.base import AbstractBaseModel
 
 
@@ -46,13 +46,15 @@ class Cart(AbstractBaseModel):
 class CartItem(AbstractBaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items", verbose_name=_("Savat"))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_("Mahsulot"))
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Rang"))
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("O'lcham"))
     quantity = models.PositiveIntegerField(default=1, verbose_name=_("Soni"))
 
     class Meta:
         verbose_name = _("Savat elementi")
         verbose_name_plural = _("Savat elementlari")
         db_table = "cart_items"
-        unique_together = ("cart", "product")
+        unique_together = ("cart", "product", "color", "size")
 
     def __str__(self):
         return f"{self.product.name} x{self.quantity}"
@@ -106,6 +108,8 @@ class OrderItem(AbstractBaseModel):
         Product, on_delete=models.SET_NULL, null=True, verbose_name=_("Mahsulot")
     )
     product_name = models.CharField(max_length=500, verbose_name=_("Mahsulot nomi"))
+    color_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Rang"))
+    size_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("O'lcham"))
     quantity = models.PositiveIntegerField(default=1, verbose_name=_("Soni"))
     unit_price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name=_("Birlik narxi"))
     cargo_charge = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name=_("Yetkazish narxi"))

@@ -17,42 +17,66 @@
     {% endfor %}
 </div>
 
+<div class="filter-controls reveal">
+    <button type="button" class="btn btn-secondary filter-toggle-btn" onclick="toggleFilterPanel()">
+        <span class="material-icons-outlined">tune</span> Filtrlar
+    </button>
+</div>
+
 {# Filter bar #}
-<form method="get" class="filter-bar reveal" id="filterForm">
-    {% if current_category %}
-    <input type="hidden" name="category" value="{{ current_category }}">
-    {% endif %}
-    <div class="filter-group">
-        <label class="filter-label">Narx (so'm)</label>
-        <div class="price-inputs">
-            <input type="number" name="min_price" placeholder="Min" value="{{ filter_min }}" class="filter-input"
-                id="minPrice">
-            <span class="price-dash">—</span>
-            <input type="number" name="max_price" placeholder="Max" value="{{ filter_max }}" class="filter-input"
-                id="maxPrice">
+<div class="filter-panel-wrapper" id="filterPanel">
+    <form method="get" class="filter-bar" id="filterForm">
+        {% if current_category %}
+        <input type="hidden" name="category" value="{{ current_category }}">
+        {% endif %}
+        <div class="filter-group">
+            <label class="filter-label">Narx (so'm)</label>
+            <div class="price-inputs">
+                <input type="number" name="min_price" placeholder="Min" value="{{ filter_min }}" class="filter-input"
+                    id="minPrice">
+                <span class="price-dash">—</span>
+                <input type="number" name="max_price" placeholder="Max" value="{{ filter_max }}" class="filter-input"
+                    id="maxPrice">
+            </div>
         </div>
-    </div>
 
-    {% if all_colors %}
-    <div class="filter-group">
-        <label class="filter-label">Rang</label>
-        <div class="color-filter-swatches">
-            <a href="?{% if filter_min %}min_price={{ filter_min }}&{% endif %}{% if filter_max %}max_price={{ filter_max }}&{% endif %}"
-                class="color-filter-swatch all-colors {% if not filter_color %}active{% endif %}" title="Barchasi">
-                <span class="material-icons-outlined" style="font-size:16px;">apps</span>
-            </a>
-            {% for color in all_colors %}
-            <a href="?color={{ color.id }}{% if filter_min %}&min_price={{ filter_min }}{% endif %}{% if filter_max %}&max_price={{ filter_max }}{% endif %}"
-                class="color-filter-swatch {% if filter_color == color.id|stringformat:'d' %}active{% endif %}"
-                style="background:{{ color.hex_code }};" title="{{ color.name }}"></a>
-            {% endfor %}
+        {% if all_sizes %}
+        <div class="filter-group">
+            <label class="filter-label">O'lcham</label>
+            <div class="size-filter-options">
+                <a href="?{% if filter_min %}min_price={{ filter_min }}&{% endif %}{% if filter_max %}max_price={{ filter_max }}&{% endif %}{% if filter_color %}&color={{ filter_color }}{% endif %}"
+                    class="size-pill {% if not filter_size %}active{% endif %}">Barchasi</a>
+                {% for size in all_sizes %}
+                <a href="?size={{ size.id }}{% if filter_min %}&min_price={{ filter_min }}{% endif %}{% if filter_max %}&max_price={{ filter_max }}{% endif %}{% if filter_color %}&color={{ filter_color }}{% endif %}"
+                    class="size-pill {% if filter_size == size.id|stringformat:'d' %}active{% endif %}">{{ size.name }}</a>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-    {% endif %}
+        {% endif %}
 
-    <button type="submit" class="filter-apply-btn">Qo'llash</button>
-    <a href="{% url 'products:product_list' %}" class="filter-reset-btn">Tozalash</a>
-</form>
+        {% if all_colors %}
+        <div class="filter-group">
+            <label class="filter-label">Rang</label>
+            <div class="color-filter-swatches">
+                <a href="?{% if filter_min %}min_price={{ filter_min }}&{% endif %}{% if filter_max %}max_price={{ filter_max }}&{% endif %}{% if filter_size %}&size={{ filter_size }}{% endif %}"
+                    class="color-filter-swatch all-colors {% if not filter_color %}active{% endif %}" title="Barchasi">
+                    <span class="material-icons-outlined" style="font-size:16px;">apps</span>
+                </a>
+                {% for color in all_colors %}
+                <a href="?color={{ color.id }}{% if filter_min %}&min_price={{ filter_min }}{% endif %}{% if filter_max %}&max_price={{ filter_max }}{% endif %}{% if filter_size %}&size={{ filter_size }}{% endif %}"
+                    class="color-filter-swatch {% if filter_color == color.id|stringformat:'d' %}active{% endif %}"
+                    style="background:{{ color.hex_code }};" title="{{ color.name }}"></a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="filter-actions">
+            <button type="submit" class="filter-apply-btn">Qo'llash</button>
+            <a href="{% url 'products:product_list' %}" class="filter-reset-btn">Tozalash</a>
+        </div>
+    </form>
+</div>
 
 <div>
     <div class="products-grid">

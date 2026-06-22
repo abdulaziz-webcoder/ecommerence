@@ -54,7 +54,17 @@
             <div class="checkout-items">
                 {% for item in items %}
                 <div class="checkout-item">
-                    <span class="checkout-item-name">{{ item.product.name }} × {{ item.quantity }}</span>
+                    <span class="checkout-item-name">
+                        {{ item.product.name }}
+                        {% if item.color or item.size %}
+                        <br><small style="color: var(--text-dim);">
+                            {% if item.color %}{{ item.color.name }}{% endif %}
+                            {% if item.color and item.size %} | {% endif %}
+                            {% if item.size %}{{ item.size.name }}{% endif %}
+                        </small>
+                        {% endif %}
+                        × {{ item.quantity }}
+                    </span>
                     <span class="checkout-item-price">{{ item.subtotal|floatformat:0 }} so'm</span>
                 </div>
                 {% if item.cargo_subtotal %}

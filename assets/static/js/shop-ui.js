@@ -147,4 +147,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    /* 6. Promo Banner */
+    const promoBanner = document.getElementById('promoBanner');
+    if (promoBanner && !localStorage.getItem('promoDismissed')) {
+        promoBanner.style.display = 'flex';
+    } else if (promoBanner) {
+        promoBanner.style.display = 'none';
+    }
+
 });
+
+// Global functions
+function dismissPromoBanner() {
+    const promoBanner = document.getElementById('promoBanner');
+    if (promoBanner) {
+        promoBanner.style.display = 'none';
+        localStorage.setItem('promoDismissed', 'true');
+    }
+}
+
+function toggleFilterPanel() {
+    const panel = document.getElementById('filterPanel');
+    if (panel) {
+        panel.classList.toggle('active');
+    }
+}
+
+function selectColor(id, name, el) {
+    document.getElementById('selectedColor').value = id;
+    document.getElementById('colorNameDisplay').textContent = name;
+    
+    // Update active class
+    const swatches = document.querySelectorAll('.color-swatch');
+    swatches.forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function selectSize(id, name, el) {
+    document.getElementById('selectedSize').value = id;
+    document.getElementById('sizeNameDisplay').textContent = name;
+    
+    // Update active class
+    const pills = document.querySelectorAll('.size-pill');
+    pills.forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+}

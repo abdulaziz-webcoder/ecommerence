@@ -1,19 +1,22 @@
 {% extends "base.html" %}
-
 {% block title %}{{ collection.name }} - Do'kon{% endblock %}
-
 {% block content %}
+
+<!-- Breadcrumb -->
 <div class="breadcrumb reveal">
     <a href="{% url 'products:product_list' %}">Mahsulotlar</a>
-    <span>&rsaquo;</span>
+    <span>›</span>
     <a href="{% url 'products:collection_list' %}">To'plamlar</a>
-    <span>&rsaquo;</span>
-    <span>{{ collection.name }}</span>
+    <span>›</span>
+    <span style="color:var(--text);">{{ collection.name }}</span>
 </div>
 
+<!-- Collection banner -->
 <div class="collection-header reveal">
     {% if collection.image %}
-    <div class="collection-header-image" style="background-image: url('{{ collection.image.url }}');"></div>
+    <div class="collection-header-image" style="background-image:url('{{ collection.image.url }}');"></div>
+    {% else %}
+    <div class="collection-header-image" style="background:var(--surface-secondary);"></div>
     {% endif %}
     <div class="collection-header-content">
         <h1>{{ collection.name }}</h1>
@@ -23,22 +26,28 @@
     </div>
 </div>
 
-<div class="page-header reveal" style="margin-top: 40px;">
-    <h2>To'plamdagi mahsulotlar ({{ products.count }})</h2>
+<!-- Product count -->
+<div class="page-header reveal" style="margin-top:32px;margin-bottom:16px;">
+    <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-tertiary);letter-spacing:-0.01em;">
+        {{ products.count }} ta mahsulot
+    </h2>
 </div>
 
-<div>
-    <div class="products-grid">
-        {% if products %}
+<!-- Products grid -->
+<div class="products-grid">
+    {% if products %}
         {% for product in products %}
-        <div class="product-card">
-            <div style="position: relative;">
+        <div class="product-card reveal">
+
+            <div style="position:relative;">
                 <a href="{% url 'products:product_detail' slug=product.slug %}">
                     <div class="product-image">
                         {% if product.main_image %}
                         <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
                         {% else %}
-                        <div class="product-placeholder"><span class="material-icons-outlined">inventory_2</span></div>
+                        <div class="product-placeholder">
+                            <span class="material-icons-outlined">inventory_2</span>
+                        </div>
                         {% endif %}
                         {% if product.has_discount %}
                         <span class="discount-badge">Chegirma!</span>
@@ -48,10 +57,12 @@
                 <form method="post" action="{% url 'orders:cart_add' product_id=product.pk %}">
                     {% csrf_token %}
                     <button type="submit" class="quick-add-btn" aria-label="Savatga qo'shish">
-                        <span class="material-icons-outlined" style="font-size: 20px;">add</span>
+                        <span class="material-icons-outlined" style="font-size:20px;">add</span>
+                        Qo'shish
                     </button>
                 </form>
             </div>
+
             <a href="{% url 'products:product_detail' slug=product.slug %}">
                 <div class="product-info">
                     <h3 class="product-name">{{ product.name }}</h3>
@@ -67,32 +78,36 @@
                         {% endif %}
                     </div>
                     <div class="product-meta">
-                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
-                                style="font-size:16px;">local_shipping</span> {{ product.shipping_days }} kun</span>
+                        <span style="display:flex;align-items:center;gap:4px;">
+                            <span class="material-icons-outlined" style="font-size:14px;">local_shipping</span>
+                            {{ product.shipping_days }} kun
+                        </span>
                         {% if product.cargo_charge %}
-                        <span style="display:flex;align-items:center;gap:4px;"><span class="material-icons-outlined"
-                                style="font-size:16px;">inventory</span> {{ product.cargo_charge|floatformat:0 }}
-                            so'm</span>
+                        <span style="display:flex;align-items:center;gap:4px;">
+                            <span class="material-icons-outlined" style="font-size:14px;">inventory</span>
+                            {{ product.cargo_charge|floatformat:0 }} so'm
+                        </span>
                         {% endif %}
                     </div>
                     {% if product.colors.exists %}
                     <div class="product-colors">
                         {% for color in product.colors.all %}
-                        <span class="product-color-dot" style="background:{{ color.hex_code }};"
-                            title="{{ color.name }}"></span>
+                        <span class="product-color-dot" style="background:{{ color.hex_code }};" title="{{ color.name }}"></span>
                         {% endfor %}
                     </div>
                     {% endif %}
                 </div>
             </a>
+
         </div>
         {% endfor %}
-        {% else %}
-        <div class="empty-state reveal">
-            <span class="material-icons-outlined" style="font-size:80px; opacity: 0.5;">inventory_2</span>
-            <p>Ushbu to'plamda hozircha mahsulotlar yo'q</p>
+    {% else %}
+        <div class="empty-state reveal" style="grid-column:1/-1;padding:80px 20px;">
+            <span class="material-icons-outlined" style="font-size:96px;color:var(--text-quaternary);opacity:0.4;">inventory_2</span>
+            <h2 style="margin-top:16px;font-size:1.2rem;font-weight:700;">Mahsulotlar yo'q</h2>
+            <p>Ushbu to'plamda hozircha mahsulotlar mavjud emas</p>
         </div>
-        {% endif %}
-    </div>
+    {% endif %}
 </div>
+
 {% endblock %}

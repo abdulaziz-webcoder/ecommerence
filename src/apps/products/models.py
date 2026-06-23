@@ -245,3 +245,12 @@ class Collection(AbstractBaseModel):
                 self.slug = f"{original_slug}-{counter}"
                 counter += 1
         super().save(*args, **kwargs)
+
+    @property
+    def active_products(self):
+        """Returns only active products — use this in templates instead of .products.all()"""
+        return self.products.filter(is_active=True)
+
+    @property
+    def active_product_count(self):
+        return self.products.filter(is_active=True).count()

@@ -148,10 +148,25 @@ class DiscountAdmin(ModelAdmin):
 
 @admin.register(Collection)
 class CollectionAdmin(ModelAdmin):
-    list_display = ("name", "slug", "is_active", "ordering")
+    list_display = ("name", "display_products_count", "slug", "is_active", "ordering")
     list_editable = ("is_active", "ordering")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
     list_filter = ("is_active",)
     filter_horizontal = ("products",)
+    fieldsets = (
+        (_("Asosiy"), {"fields": ("name", "slug", "is_active", "ordering")}),
+        (_("Tavsif"), {"fields": ("description", "image")}),
+        (_("Mahsulotlar"), {"fields": ("products",)}),
+    )
 
+    @display(description=_("Mahsulotlar"), ordering="products__count")
+    def display_products_count(self, obj):
+        count = obj.products.count()
+        return format_html(
+            '<span style="display:inline-flex;align-items:center;gap:4px;">'
+            '<span style="background:rgba(124,92,252,0.15);'
+            'color:#7c5cfc;padding:2px 10px;border-radius:50px;'
+            'font-weight:700;font-size:0.8rem;">{}</span></span>',
+            count
+        )

@@ -6,11 +6,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}{{ site_settings.shop_name|default:"Do'kon" }}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/market.css' %}">
+    <link rel="stylesheet" href="{% static 'css/market.css' %}?v=2">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
 
@@ -43,6 +43,16 @@
                 </form>
             </div>
             <div class="nav-right">
+                {% if site_settings.contact_phone %}
+                <a href="tel:{{ site_settings.contact_phone }}" class="nav-contact-link" aria-label="Telefon">
+                    <span class="material-icons-outlined">phone</span>
+                </a>
+                {% endif %}
+                {% if site_settings.contact_telegram %}
+                <a href="https://t.me/{{ site_settings.contact_telegram|cut:'@' }}" class="nav-contact-link" target="_blank" aria-label="Telegram" rel="noopener">
+                    <span class="material-icons-outlined">send</span>
+                </a>
+                {% endif %}
                 <a href="{% url 'orders:cart' %}" class="cart-link">
                     <span style="position:relative; display:inline-flex;">
                         <span class="material-icons-outlined">shopping_bag</span>
@@ -55,6 +65,23 @@
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Search Overlay (hidden by default) -->
+    <div class="mobile-search-overlay" id="mobileSearchOverlay">
+        <div class="mobile-search-bar">
+            <form action="{% url 'products:product_search' %}" method="get" class="mobile-search-form">
+                <button type="button" class="mobile-search-back" onclick="toggleMobileSearch()" aria-label="Orqaga">
+                    <span class="material-icons-outlined">arrow_back</span>
+                </button>
+                <input type="text" name="q" placeholder="Qidirish..." value="{{ search_query|default:'' }}"
+                    class="mobile-search-input" id="mobileSearchInput" autocomplete="off">
+                <button type="submit" class="mobile-search-submit" aria-label="Qidirish">
+                    <span class="material-icons-outlined">search</span>
+                </button>
+            </form>
+        </div>
+        <div class="mobile-search-backdrop" onclick="toggleMobileSearch()"></div>
+    </div>
 
     <!-- Mobile Bottom Navigation -->
     <nav class="mobile-bottom-nav">
@@ -69,7 +96,7 @@
                 <span>To'plamlar</span>
             </a>
 
-            <a href="{% url 'products:product_list' %}#search" class="mobile-nav-item" onclick="document.querySelector('.search-input').focus(); window.scrollTo(0, 0);">
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="toggleMobileSearch();">
                 <span class="material-icons-outlined">search</span>
                 <span>Qidirish</span>
             </a>
@@ -90,27 +117,7 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div>
-                    <p>&copy; 2025 {{ site_settings.shop_name|default:"Do'kon" }}. Barcha huquqlar himoyalangan.</p>
-                </div>
-                <div class="contact-info">
-                    {% if site_settings.contact_phone %}
-                    <span class="contact-item">
-                        <span class="material-icons-outlined">phone</span> {{ site_settings.contact_phone }}
-                    </span>
-                    {% endif %}
-                    {% if site_settings.contact_telegram %}
-                    <span class="contact-item">
-                        <span class="material-icons-outlined">send</span> {{ site_settings.contact_telegram }}
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- footer removed -->
 
     <script src="{% static 'js/shop-ui.js' %}"></script>
     {% block extra_js %}{% endblock %}

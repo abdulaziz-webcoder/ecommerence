@@ -1,97 +1,53 @@
 /**
- * Do'kon Market — Liquid Glass UI Interactions
- * Zero-dependency modern JS for UI animations only.
- * Does not handle any backend/API logic.
+ * Shop UI — iOS-inspired interactions
+ * Lightweight, gesture-friendly, zero dependencies.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
 
-    /* 1. Navbar Scroll Effect
-       -------------------------------------------------- */
+    /* 1. Navbar - consistent liquid glass, no scroll behavior change */
     const navbar = document.querySelector('.navbar');
-    const scrollThreshold = 50;
-    
-    // Initial check
-    if (window.scrollY > scrollThreshold) {
-        navbar?.classList.add('scrolled');
+    if (navbar) {
+        // Ensure consistent liquid glass appearance, no scroll-based opacity changes
+        navbar.style.background = 'rgba(0, 0, 0, 0.45)';
     }
 
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > scrollThreshold) {
-            navbar?.classList.add('scrolled');
-        } else {
-            navbar?.classList.remove('scrolled');
-        }
-    }, { passive: true });
-
-
-    /* 2. Scroll Reveal Animations (Intersection Observer)
+    /* 2. Scroll Reveal (Intersection Observer)
        -------------------------------------------------- */
-    const revealElements = document.querySelectorAll('.product-card, .form-section, .order-summary-checkout, .cart-item');
-    
-    // Add default reveal class to elements we want to animate
-    revealElements.forEach(el => {
-        el.classList.add('reveal');
-        // Wrap parent in stagger if it's a grid/list
-        if (el.parentElement && (el.parentElement.classList.contains('products-grid') || el.parentElement.classList.contains('cart-items'))) {
-            el.parentElement.classList.add('stagger-children');
-        }
-    });
+    if (!prefersReducedMotion) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { rootMargin: '0px 0px -40px 0px', threshold: 0.05 });
 
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px 0px -50px 0px',
-        threshold: 0.1
-    };
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    } else {
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
+    }
 
-    const scrollObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-                // Optional: stop observing once revealed for better performance
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    // Re-select now that classes are added
-    document.querySelectorAll('.reveal').forEach(el => {
-        scrollObserver.observe(el);
-    });
-
-
-    /* 3. Mobile Bottom Nav Visibility Toggle
-       Hide when scrolling down, show when scrolling up
+    /* 3. Bottom Nav hide/show on scroll
        -------------------------------------------------- */
     const bottomNav = document.querySelector('.mobile-bottom-nav');
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
     if (bottomNav) {
+        let lastScrollY = 0;
+        let ticking = false;
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const currentScrollY = window.scrollY;
-                    
-                    // Allow rubber-banding at top/bottom without triggering hide/show
-                    if (currentScrollY <= 0 || (window.innerHeight + currentScrollY) >= document.body.offsetHeight) {
-                        bottomNav.style.transform = 'translateY(0)';
-                    } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                        // Scrolling down — hide (push down by 100%)
-                        bottomNav.style.transform = 'translateY(150%)';
+                    const sy = window.scrollY;
+                    if (sy <= 0 || (window.innerHeight + sy) >= document.body.offsetHeight) {
+                        bottomNav.style.transform = 'translateX(-50%) translateY(0)';
+                    } else if (sy > lastScrollY && sy > 80) {
+                        bottomNav.style.transform = 'translateX(-50%) translateY(calc(100% + 20px))';
                     } else {
-                        // Scrolling up — show
-                        bottomNav.style.transform = 'translateY(0)';
+                        bottomNav.style.transform = 'translateX(-50%) translateY(0)';
                     }
-                    
-                    // Smooth transition
-                    bottomNav.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                    
-                    lastScrollY = currentScrollY;
+                    lastScrollY = sy;
                     ticking = false;
                 });
                 ticking = true;
@@ -99,96 +55,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
     }
 
-
-    /* 4. Filter Bar Smooth Scroll
-       If there's a filter bar and URL has params, scroll to it smoothly
+    /* 4. Image lazy load fade-in
        -------------------------------------------------- */
-    if (window.location.search) {
-        const filterBar = document.querySelector('.filter-bar');
-        const headerOffset = 100; // Account for sticky nav
-        
-        // Only auto-scroll if it's not a fresh visit (e.g. they just applied a filter)
-        // Checking for ?page= or ?color= or ?min_price
-        if (filterBar && (window.location.search.includes('page=') || window.location.search.includes('color=') || window.location.search.includes('price='))) {
-            setTimeout(() => {
-                const elementPosition = filterBar.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }, 300); // slight delay to allow layout to settle
-        }
-    }
-
-
-    /* 5. Lazy Load Image Enhancements (Fade In)
-       -------------------------------------------------- */
-    const productImages = document.querySelectorAll('.product-image img');
-    
-    productImages.forEach(img => {
-        // Add skeleton class to parent initially
+    document.querySelectorAll('.product-image img').forEach(img => {
         if (!img.complete) {
-            img.parentElement.classList.add('skeleton');
+            img.parentElement?.classList.add('skeleton');
             img.style.opacity = '0';
         }
-        
         img.addEventListener('load', () => {
-            img.parentElement.classList.remove('skeleton');
+            img.parentElement?.classList.remove('skeleton');
             img.style.opacity = '1';
-            img.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)';
-        });
-        
-        // Fallback if already cached
+            img.style.transition = 'opacity 0.4s ease';
+        }, { once: true });
         if (img.complete) {
-            img.parentElement.classList.remove('skeleton');
+            img.parentElement?.classList.remove('skeleton');
             img.style.opacity = '1';
         }
     });
 
-    /* 6. Promo Banner */
-    const promoBanner = document.getElementById('promoBanner');
-    if (promoBanner && !localStorage.getItem('promoDismissed')) {
-        promoBanner.style.display = 'flex';
-    } else if (promoBanner) {
-        promoBanner.style.display = 'none';
-    }
-
-});
-
-// Global functions
-function dismissPromoBanner() {
+    /* 5. Promo Banner
+       -------------------------------------------------- */
     const promoBanner = document.getElementById('promoBanner');
     if (promoBanner) {
-        promoBanner.style.display = 'none';
-        localStorage.setItem('promoDismissed', 'true');
+        promoBanner.style.display = localStorage.getItem('promoDismissed') ? 'none' : 'flex';
+    }
+
+    /* 6. Quick-add haptic feedback (subtle scale)
+       -------------------------------------------------- */
+    document.querySelectorAll('.quick-add-btn, .btn, .cart-link, .filter-toggle-btn').forEach(btn => {
+        btn.addEventListener('touchstart', () => {
+            btn.style.transform = 'scale(0.97)';
+        }, { passive: true });
+        btn.addEventListener('touchend', () => {
+            btn.style.transform = '';
+        }, { passive: true });
+    });
+});
+
+/* ── Global Functions ─────────────────────────────────────────── */
+function toggleMobileSearch() {
+    const overlay = document.getElementById('mobileSearchOverlay');
+    const input = document.getElementById('mobileSearchInput');
+    if (!overlay) return;
+    const isOpen = overlay.classList.contains('open');
+    if (isOpen) {
+        overlay.classList.remove('open');
+        input?.blur();
+    } else {
+        overlay.classList.add('open');
+        setTimeout(() => input?.focus(), 200);
     }
 }
 
+function dismissPromoBanner() {
+    const el = document.getElementById('promoBanner');
+    if (el) { el.style.display = 'none'; localStorage.setItem('promoDismissed', 'true'); }
+}
+
 function toggleFilterPanel() {
-    const panel = document.getElementById('filterPanel');
-    if (panel) {
-        panel.classList.toggle('active');
-    }
+    document.getElementById('filterPanel')?.classList.toggle('active');
 }
 
 function selectColor(id, name, el) {
     document.getElementById('selectedColor').value = id;
     document.getElementById('colorNameDisplay').textContent = name;
-    
-    // Update active class
-    const swatches = document.querySelectorAll('.color-swatch');
-    swatches.forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
 }
 
 function selectSize(id, name, el) {
     document.getElementById('selectedSize').value = id;
     document.getElementById('sizeNameDisplay').textContent = name;
-    
-    // Update active class
-    const pills = document.querySelectorAll('.size-pill');
-    pills.forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.size-pill').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
 }

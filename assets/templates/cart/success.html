@@ -1,39 +1,55 @@
 {% extends "base.html" %}
-
 {% block title %}Buyurtma qabul qilindi! - Do'kon{% endblock %}
-
 {% block content %}
+
 <div class="success-page reveal">
     <div class="success-card">
-        <div class="success-icon"><span class="material-icons-outlined">check_circle</span></div>
-        <h1>Buyurtmangiz qabul qilindi!</h1>
-        <p class="order-number">Buyurtma raqami: <b>{{ order.order_number }}</b></p>
+
+        <!-- Animated checkmark icon -->
+        <div class="success-icon" style="animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;">
+            <span class="material-icons-outlined">check_circle</span>
+        </div>
+
+        <h1>Buyurtma qabul qilindi!</h1>
+        <p class="order-number">№ <b>{{ order.order_number }}</b></p>
 
         <div class="order-details">
             <div class="detail-row">
-                <span>Holat:</span>
+                <span style="color:var(--text-tertiary);">Holat</span>
                 <span class="status-badge status-unpaid">{{ order.get_status_display }}</span>
             </div>
             <div class="detail-row">
-                <span>Telefon:</span>
-                <span>{{ order.phone_number }}</span>
+                <span style="color:var(--text-tertiary);">Telefon</span>
+                <span style="font-weight:600;">{{ order.phone_number }}</span>
             </div>
             <div class="detail-row">
-                <span>Manzil:</span>
-                <span>{{ order.location }}</span>
+                <span style="color:var(--text-tertiary);">Manzil</span>
+                <span style="font-weight:500;text-align:right;max-width:60%;">{{ order.location }}</span>
             </div>
-            <div class="detail-row">
-                <span>Jami summa:</span>
+            <div class="detail-row" style="border-bottom:none;">
+                <span style="color:var(--text-tertiary);">Jami summa</span>
                 <span class="total-amount">{{ order.grand_total|floatformat:0 }} so'm</span>
             </div>
         </div>
 
         <div class="success-info">
-            <span class="material-icons-outlined">phonelink_ring</span>
+            <span class="material-icons-outlined" style="flex-shrink:0;">telegram</span>
             <p>Telegram orqali to'lov ma'lumotlari va buyurtma holati haqida xabar olasiz.</p>
         </div>
 
-        <a href="{% url 'products:product_list' %}" class="btn btn-primary">Bosh sahifaga qaytish</a>
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
+            <span class="material-icons-outlined">storefront</span>
+            Bosh sahifaga qaytish
+        </a>
+
     </div>
 </div>
+
+<style>
+@keyframes successPop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+</style>
+
 {% endblock %}

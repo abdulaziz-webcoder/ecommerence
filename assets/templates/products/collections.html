@@ -1,38 +1,37 @@
 {% extends "base.html" %}
-
 {% block title %}To'plamlar - Do'kon{% endblock %}
-
 {% block content %}
+
 <div class="page-header reveal">
-    <h1><span class="material-icons-outlined">category</span> To'plamlar</h1>
+    <h1>To'plamlar</h1>
 </div>
 
-<div>
-    <div class="collections-grid">
-        {% if collections %}
+<div class="collections-grid">
+    {% if collections %}
         {% for collection in collections %}
-        <div class="collection-card reveal">
-            <a href="{% url 'products:collection_detail' slug=collection.slug %}">
-                <div class="collection-image">
-                    {% if collection.image %}
-                    <img src="{{ collection.image.url }}" alt="{{ collection.name }}" loading="lazy">
-                    {% else %}
-                    <div class="product-placeholder"><span class="material-icons-outlined">style</span></div>
-                    {% endif %}
-                    <div class="collection-overlay">
-                        <h2 class="collection-name">{{ collection.name }}</h2>
-                        <span class="collection-count">{{ collection.products.count }} ta mahsulot</span>
-                    </div>
+        <a href="{% url 'products:collection_detail' slug=collection.slug %}" class="collection-card reveal">
+            <div class="collection-image">
+                {% if collection.image %}
+                <img src="{{ collection.image.url }}" alt="{{ collection.name }}" loading="lazy">
+                {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-secondary);">
+                    <span class="material-icons-outlined" style="font-size:48px;color:var(--text-quaternary);">style</span>
                 </div>
-            </a>
-        </div>
+                {% endif %}
+                <div class="collection-overlay">
+                    <span class="collection-name">{{ collection.name }}</span>
+                    <span class="collection-count">{{ collection.product_count }} ta mahsulot</span>
+                </div>
+            </div>
+        </a>
         {% endfor %}
-        {% else %}
-        <div class="empty-state reveal">
-            <span class="material-icons-outlined" style="font-size:80px; opacity: 0.5;">category</span>
-            <p>Hozircha to'plamlar yo'q</p>
+    {% else %}
+        <div class="empty-state reveal" style="grid-column:1/-1;padding:80px 20px;">
+            <span class="material-icons-outlined" style="font-size:96px;color:var(--text-quaternary);opacity:0.4;">category</span>
+            <h2 style="margin-top:16px;font-size:1.2rem;font-weight:700;">To'plamlar yo'q</h2>
+            <p>Hozircha hech qanday to'plam mavjud emas</p>
         </div>
-        {% endif %}
-    </div>
+    {% endif %}
 </div>
+
 {% endblock %}

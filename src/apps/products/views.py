@@ -110,14 +110,21 @@ class ProductSearchView(ListView):
         return ctx
 
 
+from django.db.models import Prefetch, Count
+
 class CollectionListView(ListView):
     model = Collection
-    template_name = "products/collection_list.html"
+    template_name = "products/collections.html"
     context_object_name = "collections"
     paginate_by = 12
 
     def get_queryset(self):
-        return Collection.objects.filter(is_active=True).prefetch_related("products")
+        return (
+            Collection.objects
+            .filter(is_active=True)
+            .prefetch_related("products")
+            .annotate(product_count=Count("products", filter=Q(products__is_active=True)))
+        )
 
 
 class CollectionDetailView(DetailView):
@@ -127,4 +134,13 @@ class CollectionDetailView(DetailView):
     slug_url_kwarg = "slug"
 
     def get_queryset(self):
-        return Collection.objects.filter(is_active=True).prefetch_related("products")
+        return Collection.objects.filter(is_active=True).prefetch_related(
+            Prefetch("products", queryset=Product.objects.filter(is_active=True).select_related("category").prefetch_related(
+                "media_files", "discounts", "colors"
+            ))
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["products"] = self.object.products.all()
+        return ctx
